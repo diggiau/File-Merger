@@ -1,0 +1,1 @@
+export function one() {console.log("done")}
