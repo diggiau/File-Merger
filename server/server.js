@@ -1,4 +1,5 @@
 const fs = require('fs');
+const path = require('path');
 const express = require('express');
 const app = express();
 
@@ -65,6 +66,19 @@ app.get("/api/:fileName/:fileDir/:dataDir", (req, res) => {
     }
     console.log(`${fileName}.dat created`)
     res.json({status: `${fileName}.dat has been created`})
+})
+app.get("/api/directory/:currentDirectory", (req, res) => {
+    let { currentDirectory } = req.params;
+    let directoryTree = currentDirectory.split("Z");
+    const searchParam = directoryTree.pop();
+    currentDirectory = directoryTree.join("\\");
+    const childDirectories = fs.readdirSync(currentDirectory)
+                                .map(file => path.join(currentDirectory, file))
+                                .filter(path => fs.statSync(path).isDirectory())
+                                .map(dir => dir.toString())
+                                .filter(dir => dir.split("\\").slice(-1)[0].includes(searchParam));
+    res.json({directories: childDirectories});
+    
 })
 
 app.listen(5000, () => console.log("Server starting on port 5000"));
